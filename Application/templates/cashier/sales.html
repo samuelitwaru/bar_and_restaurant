@@ -1,0 +1,12 @@
+{% extends 'cashier/cashier-base.html' %}
+
+{% block content %}
+
+	{% include 'cashier/top-row.html' %}
+
+    <div class="row pt-2">
+        {% include 'cashier/tab-content.html' %}
+        {% include 'cashier/order-panel.html' %}
+    </div>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'chef/chef-base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="login-content card bg-light shadow p-2">
+		<form method="POST" action="{{url_for('food.update_food_units')}}">
+			<div class="container">
+				<h3 class="text-center">Add Food Units - {{food.name}}</h3>
+
+				<hr>
+
+				<div class="form-group">
+					<input type="hidden" name="food-id" value="{{ food.id }}">
+					<label >Units Available</label>
+					<label class="form-control bg-light">{{ food.units_available }}</label>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Units to Add ({{food.sale_unit}})</label>
+					<input class="form-control" type="number" name="units" value="{{ food.name }}" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-block float-right">Submit</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}

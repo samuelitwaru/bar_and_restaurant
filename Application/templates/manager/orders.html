@@ -1,0 +1,138 @@
+
+
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+
+<div class="row p-2 fixed bg-light" style="top:70px; box-shadow: 5px 5px 5px #ccc;">
+    <form class="col-md-10" method="GET" action="{{ url_for('order.filter_orders') }}">
+		<div class="row">
+			<div class="col-md-2">
+			  <small>Cashier</small>
+			  <select class="form-control form-control-sm" name="cashier">
+			    <option value="">All</option>
+			    {% for cashier in cashiers %}
+			      <option value="{{cashier.id}}" {% if cashier_id == cashier.id %} selected {% endif %}>{{ cashier.first_name }} {{ cashier.last_name }}</option>
+			    {% endfor %}
+			  </select>
+			</div>
+
+			<div class="col-md-2">
+			  <small>Waiter</small>
+			  <select class="form-control form-control-sm" name="waiter">
+			    <option value="">All</option>
+			    {% for waiter in waiters %}
+			      <option value="{{waiter.id}}" {% if waiter_id == waiter.id %} selected {% endif %}>{{ waiter.first_name }} {{ waiter.last_name }}</option>
+			    {% endfor %}
+			  </select>
+			</div>
+
+			<div class="col-md-2">
+			  <small>Status</small>
+			  <select class="form-control form-control-sm" name="open">
+			    <option value="">All</option>
+			    <option value="1">Open</option>
+			    <option value="0">Closed</option>
+			  </select>
+			</div>
+
+			<div class="col-md-2">
+			  <small>From</small>
+			  <input type="date" name="from" {% if today %} value="{{today.strftime('%Y-%m-%d')}}" {% endif %} class="form-control form-control-sm" />
+			</div>
+
+			<div class="col-md-2">
+			  <small>To</small>
+			  <input type="date" name="to" {% if tomorrow %} value="{{tomorrow.strftime('%Y-%m-%d')}}" {%endif%} class="form-control form-control-sm" />
+			</div>
+
+			<div class="col-md-2" align="right" style="top: 30;">
+			  <small>Filter</small>
+			  <button class="btn btn-sm btn-block btn-info">Filter</button>
+			</div>
+		</div>
+    </form>
+
+    <div class="col-md-2 border-left" style="top: 30;">
+      <form method="GET" action="{{ url_for('order.search') }}">
+        <small>Search Table/Customer</small>
+        <div class="col-md-12 mb-3">
+          <div class="input-group">
+            <input type="text" name="search-string" class="form-control form-control" placeholder="&#128269; Search" />
+            <!-- <div class="input-group-append"> -->
+              <button type="submit" class="rounded-0 input-group-append btn btn-info fa fa-search"></button>
+            <!-- </div> -->
+          </div>
+        </div>
+      </form>
+    </div>
+</div>
+
+<div class="row py-1">
+  <div class="col-md-2">
+    <label>Fetched : </label> <strong>{{ orders | length }} (orders)</strong>
+  </div>
+
+  <div class="col-md-2">
+    <label>Total Bill : </label> <strong>{{ total_bill }}</strong>
+  </div>
+
+  <div class="col-md-3">
+    <label>Total Paid : </label> <strong>{{ total_paid }}</strong>
+  </div>
+
+  <div class="col-md-3">
+    <label>Credit Sales : </label> <strong>{{ total_bill - total_paid }}</strong>
+  </div>
+
+  {% if order_page %}
+  <div class="col-md-2">
+    <form class="form-inline" id="page-form" method="GET" action="{{ url_for('order.get_order_page') }}">
+      <label>Page</label>
+       <select class="form-control-sm form-control" onchange="$('#page-form').submit()" name="page">
+        <option value="0">All</option>
+        {% for page in range(1, order_page.pages+1) %}
+          <option value="{{ page }}" {% if page == current_page %}selected{% endif %}>Page {{ page }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<div class="row p-2 bg-white">
+    <table class="table table-responsive-sm table-sm table-stripped border">
+        <thead>
+            <tr>
+                <th scope="col">Order REF</th>
+                <th scope="col">Date</th>
+                <th scope="col">Bill</th>
+                <th scope="col">Paid</th>
+                <th scope="col">Balance</th>
+                <th scope="col">Cashier</th>
+                <th scope="col">Waiter</th>
+                <th scope="col">Customer/Table</th>
+                <th scope="col">Status</th>
+                <th scope="col">...</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for order in orders %}
+                <tr class="{% if (order.bill | int - order.paid | int) != 0 %} table-warning {% endif %}">
+                  <td>{{ order.order_ref }}</td>
+                  <td>{{ order.date.strftime('%d/%m/%Y') }}</td>
+                  <td>{{ order.bill }}</td>
+                  <td>{{ order.paid }}</td>
+                  <td>{{ order.bill|int - order.paid|int }}</td>
+                  <td>{{ order.cashier.first_name }} {{ order.cashier.last_name }}</td>
+                  <td>{{ order.waiter.first_name }} {{ order.waiter.last_name }}</td>
+                  <td>{{ order.customer }}</td>
+                  <td>{% if order.open %}Open{% else %}Closed{% endif %}</td>
+                  <td><a href="{{url_for('order.get_order', id=order.id)}}" class="btn btn-sm btn-dark btn-block" >View Order</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

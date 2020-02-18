@@ -1,0 +1,166 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+	<h2>Drink Brands</h2>
+	<hr>
+	<div class="row py-2">
+		<div class="col-md-2 my-auto"><label>Filter by category</label></div>
+		<div class="col-md-7">
+			<form id="filter-form" method="GET" action="{{ url_for('brand.filter') }}">
+				<select id='category-selector' onchange="submitForm()" class="form-control" type="submit" name="category">
+					<option>---</option>
+					<option value="All">All</option>
+					{% for category in categories %}
+						 <option value="{{category.id}}">{{category.name}}</option>
+					{% endfor %}
+				</select>
+			</form>
+			<script>
+				submitForm = function(){
+					$('#filter-form').submit();
+				}
+			</script>
+		</div>
+		<div class="col-md-3">
+			<button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#addCategoryModel"><span class="fa fa-plus"></span> Add New Brand</button>
+			<!-- Modal -->
+			<div class="modal fade" id="addCategoryModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+			  <div class="modal-dialog" role="document">
+				<form method="POST" action="{{url_for('brand.add_brand')}}">
+					<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Add New Brand</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label class="form-check-label">Brand category</label>
+							<div class="border p-2">
+								{% for category in categories %}
+									<div class="custom-control custom-radio custom-control-inline">
+										<input type="radio" id="category{{category.id}}" value="{{category.id}}" name="category" class="custom-control-input inline">
+										<label class="custom-control-label inline" for="category{{category.id}}">{{ category.name }}</label>
+									</div>
+								{% endfor %}
+							</div>
+
+						</div>
+
+						<div class="form-group">
+							<label class="form-check-label">Brand name</label>
+							<input class="form-control" type="text" name="brand" required>
+						</div>
+
+						<hr>
+
+						<div class="form-group">
+							<input type="hidden" name="brand-id">
+							<label class="form-check-label">Purchase Unit</label>
+							<input class="form-control" type="text" name="purchase-unit" required>
+						</div>
+
+						<div class="form-group">
+							<label class="form-check-label">Purchase Price</label>
+							<input class="form-control" type="number" name="purchase-price" required>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Save</button>
+					</div>
+					</div>
+				</form>
+			  </div>
+			</div>
+		</div>
+	</div>
+	<table class="table table-responsive-sm table-hover border">
+		<thead>
+		    <tr>
+		    	<th scope="col">Brands</th>
+		    	<th scope="col">Category</th>
+		    	<th scope="col">Purchasing</th>
+				<th scope="col" colspan="2">
+		    	</th>
+		    	<th scope="col">Sale Guides</th>
+		    	<th scope="col">Stock</th>
+		    </tr>
+		  </thead>
+
+		  <tbody>
+		  	{% for brand in brands %}
+		  		<tr scope="row" style="cursor: pointer;">
+		  			<td>{{ brand.name }}</td>
+		  			<td>{{ brand.category.name }}</td>
+		  			<td>
+		  				{{ brand.purchase_guide.purchase_price }} @ {{ brand.purchase_guide.purchase_unit }}
+		  			</td>
+
+					<td>
+						<form action="{{ url_for('brand.edit_brand') }}">
+							<input type="hidden" name="brand" value="{{ brand.id }}"/>
+							<button type="submit" class="btn btn-info"><span class="fa fa-pencil"></span> Edit</button>
+						</form>
+		  			</td>
+
+					<td>
+						{% if brand.quantity_available > 0 %}
+		  					<small class="text-info">Cannot be deleted</small>
+		  				{% else %}
+		  					<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteBrand{{brand.id}}"><span class="fa fa-trash"></span> Delete</button>
+
+							<div class="modal fade" id="confirmDeleteBrand{{brand.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+								    <div class="modal-content">
+								      <div class="modal-header">
+								        <h5 class="modal-title" id="exampleModalLabel">Confirm Delete</h5>
+								        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								          <span aria-hidden="true">&times;</span>
+								        </button>
+								      </div>
+								      <div class="modal-body">
+								        Are you sure you want to delete '{{brand.name}}'?
+								      </div>
+								      <div class="modal-footer">
+								      	<form method="POST" action="{{url_for('brand.delete_brand')}}">
+								        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						  					<input type="hidden" name="brand-id" value="{{ brand.id }}" />
+		  									<button type="submit" class="btn btn-danger"><span class="fa fa-trash"></span> Delete</button>
+						  				</form>
+								      </div>
+								    </div>
+								</div>
+				  			</div>
+			  			{% endif %}
+		  			</td>
+		  			
+		  			<td>
+		  				<form action="{{ url_for('brand.sale_guides') }}">
+							<input type="hidden" name="brand" value="{{ brand.id }}" />
+							{{ brand.sale_guides|length}}
+							<button  class="btn btn-warning" type="submit"><span class="fa fa-align-justify"></span> Sale Guides</button>
+						</form>
+					</td>
+
+					<td>
+							{{ brand.quantity_available | round(2) }} ({{ brand.purchase_guide.purchase_unit }})
+							<form action="{{ url_for('brand.add_stock') }}">
+								<input type="hidden" name="brand" value="{{ brand.id }}"/>
+								<button  class="btn btn-success btn-sm" type="submit"><span class="fa fa-cart-plus"></span> Add Stock</button>
+							</form>
+
+							<form action="{{ url_for('brand.reduce_stock') }}">
+								<input type="hidden" name="brand" value="{{ brand.id }}"/>
+								<button  class="btn btn-danger btn-sm" type="submit"><span class="fa fa-minus"></span> Reduce Stock</button>
+							</form>
+						<!-- </div> -->
+					</td>
+		  		</tr>
+		  	{% endfor %}
+		  </tbody>
+	</table>
+
+{% endblock %}

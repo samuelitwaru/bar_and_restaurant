@@ -1,0 +1,126 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+<h2>Sales</h2>
+<hr>
+<form class="bg-light card p-2" method="GET" action="{{ url_for('sale.filter_sales') }}">
+	<div class="row">
+			<div class="col-md-2">
+				<small>Item</small>
+				<select class="form-control form-control-sm" name="item">
+					<option value="all">All</option>
+					{% for item in items %}
+						{% if item.brand_ref %}
+							<option value="drink-{{item.id}}" {% if 'drink-'+item.id|string==item_id %} selected {%endif%}>{{ item.name }}</option>
+						{% elif item.food_ref%}
+							<option value="food-{{item.id}}" {% if 'food-'+item.id|string==item_id %} selected {%endif%}>{{ item.name }}</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
+
+			<div class="col-md-2">
+				<small>Cashier</small>
+				<select class="form-control form-control-sm" name="cashier">
+					<option value="">All</option>
+					{% for cashier in cashiers %}
+						<option value="{{cashier.id}}" {% if cashier.id==cashier_id %} selected {%endif%}>{{ cashier.first_name }} {{ cashier.last_name }}</option>
+						}
+					{% endfor %}
+				</select>
+			</div>
+
+			<div class="col-md-2">
+				<small>Waiter</small>
+				<select class="form-control form-control-sm" name="waiter">
+					<option value="">All</option>
+					{% for waiter in waiters %}
+						<option value="{{waiter.id}}" {% if waiter.id==waiter_id %} selected {%endif%}>{{ waiter.first_name }} {{ waiter.last_name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+
+			<div class="col-md-2">
+				<small>From</small>
+				<input type="date" name="from" {% if today %} value="{{today.strftime('%Y-%m-%d')}}" {% endif %} class="form-control form-control-sm" />
+			</div>
+
+			<div class="col-md-2">
+				<small>To</small>
+				<input type="date" name="to" {% if tomorrow %} value="{{tomorrow.strftime('%Y-%m-%d')}}" {% endif %} class="form-control form-control-sm" />
+			</div>
+
+			<div class="col-md-2 pb-0">
+				<br>
+				<button class="btn btn-block btn-sm btn-info">Filter</button>
+			</div>
+		
+	</div>
+</form>
+
+<div class="row py-1">
+	<div class="col-md-3">
+		<label>Fetched : </label> <strong>{{ sales | length }} (sales)</strong>
+	</div>
+	<div class="col-md-3">
+		<label>Total Sales : </label> <strong>{{ total_sales }}</strong>
+	</div>
+
+	{% if sale_page %}
+	<div class="col-md-3">
+		<form class="form-inline" id="page-form" method="GET" action="{{ url_for('sale.get_sale_page') }}">
+			<label>Page  </label>
+			 <select class="form-control-sm form-control" onchange="$('#page-form').submit()" name="page">
+				<option value="0">All</option>
+				{% for page in range(1, sale_page.pages+1) %}
+					<option value="{{ page }}" {% if page == current_page %}selected{% endif %}>Page {{ page }}</option>
+				{% endfor %}
+			</select>
+		</form>
+	</div>
+	{% endif %}
+
+	<div class="col-md-3">
+		<button class="btn btn-dark" onclick="printDiv('sales', false)"><span class="fa fa-print"></span> Print</button>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12" id="sales">
+		<div id="header-sales"></div>
+		<table class="table table-responsive-sm table-hover border">
+			<thead>
+			    <tr>
+			    	<th scope="col">Date</th>
+			    	<th scope="col">Item</th>
+			    	<th scope="col">Quantity</th>
+			    	<th scope="col">Sale Price</th>
+			    	<th scope="col">Cashier</th>
+			    	<th scope="col">Waiter</th>
+			    </tr>
+			  </thead>
+
+			  <tbody>
+			  	{% for sale in sales %}
+			  		<tr scope="row" style="cursor: pointer;">
+			  			<td>{{ sale.date.strftime('%d/%m/%Y') }}</td>
+			  			<td>
+			  				{% if sale.brand %}
+			  					{{ sale.brand.name }}
+			  				{% elif sale.food %}
+			  					{{ sale.food.name }}
+			  				{% endif %}
+			  			</td>
+
+			  			<td>{{ sale.quantity }} ({{ sale.sale_unit }})</td>
+			  			<td>{{ sale.sale_price * sale.quantity }}</td>
+			  			<td>{{ sale.cashier.first_name }} {{ sale.cashier.last_name }}</td>
+			  			<td>{{ sale.waiter.first_name }} {{ sale.waiter.last_name }}</td>
+			  		</tr>
+			  	{% endfor %}
+			  </tbody>
+		</table>
+	</div>
+</div>
+
+{% endblock %}

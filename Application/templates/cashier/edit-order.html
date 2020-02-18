@@ -1,0 +1,357 @@
+{% extends 'cashier/cashier-base.html' %}
+
+{% block content %}
+
+<style>
+  .drink-nav-link.tab-link.active{
+    background-color:#343a40;
+    color:#fff;
+  }
+  .drink-nav-link.tab-link{
+    color:#343a40;
+    border:1px solid #000;
+  }
+
+  .food-nav-link.tab-link.active{
+    background-color:#fa9703;
+    color:#fff;
+  }
+  .food-nav-link.tab-link{
+    color:#fa9703;
+    border:1px solid #fa9703;
+  }
+</style>
+
+{% include 'cashier/top-row.html' %}
+
+<div class="row pt-2">
+	<div class="col-md-8 bg-white">
+	    <div class="tab-content" id="pills-tabContent">
+	        {% for category in categories %}
+	            <div class="tab-pane fade show" id="drinks-tab-{{loop.index}}" role="tabpanel" aria-labelledby="pills-{{loop.index}}-tab">
+	                <table class="table table-responsive-sm">
+	                    <thead>
+	                        <th class="text-center shadow">{{ category.name }}</th>
+	                    </thead>
+
+	                    <tbody>
+		                    {% for brand in category.brands %}
+			                    {% if brand.sale_guides | length > 0 and brand.quantity_available > 0 %}
+			                        <tr {% if brand.sale %}class='bg-light'{% endif %}>
+			                            <td>{{ brand.name }}</td>
+			                            {% if sold_items['drink_items'].get(brand.id) %}
+				                        	{% with sg,quantity=sold_items['drink_items'].get(brand.id) %}
+					                            <td class="my-auto">
+					                                <select id="{{brand.brand_ref}}-sale-guide-{{loop.index}}" class="form-control form-control-sm text-center" onchange="addSale('drink_items', '{{brand.brand_ref}}','#{{brand.brand_ref}}-quantiy-{{loop.index}}', '#{{brand.brand_ref}}-sale-guide-{{loop.index}}')">
+					                                    {% for sale_guide in brand.sale_guides %}
+					                                        {% if (brand.quantity_available * sale_guide.quantity_in_purchase_unit) > 1 %}
+					                                            <option value="{{sale_guide.id}}" {% if sg==sale_guide.id %}selected{% endif %}>
+					                                                {{(brand.quantity_available * sale_guide.quantity_in_purchase_unit)|int}}  ({{sale_guide.sale_unit}}) <span>=></span> {{sale_guide.sale_price}}@
+					                                            </option>
+					                                        {% endif %}
+					                                    {% endfor %}
+					                                </select>
+					                            </td>
+
+					                            <td>
+					                                <div class="row">
+					                                    <div class="col-md-4" align="center">
+					                                        <button id="minus" onmouseup="changeQuantity(-1, '#{{brand.brand_ref}}-quantiy-{{loop.index}}')" onclick="addSale('drink_items', '{{brand.brand_ref}}','#{{brand.brand_ref}}-quantiy-{{loop.index}}', '#{{brand.brand_ref}}-sale-guide-{{loop.index}}')" class="btn btn-dark btn-sm"><span class="fa fa-minus"></span></button>
+					                                    </div>
+
+					                                    <div class="col-md-4 my-auto">
+					                                        <label id="{{brand.brand_ref}}-quantiy-{{loop.index}}" name="quantity" class="form-control form-control-sm text-center">{% if brand.sale %}{{brand.sale.quantity}}{% else %}{{quantity}}{% endif %}</label>
+					                                    </div>
+
+					                                    <div class="col-md-4" align="center">
+					                                        <button id="plus" onmouseup="changeQuantity(1, '#{{brand.brand_ref}}-quantiy-{{loop.index}}')" onclick="addSale('drink_items', '{{brand.brand_ref}}','#{{brand.brand_ref}}-quantiy-{{loop.index}}', '#{{brand.brand_ref}}-sale-guide-{{loop.index}}')" class="btn btn-dark btn-sm">
+					                                            <span class="fa fa-plus"></span>
+					                                        </button>
+					                                    </div>
+					                                </div>
+					                            </td>
+			                            	{% endwith %}
+			                            {% else %}
+		                            		<td class="my-auto">
+				                                <select id="{{brand.brand_ref}}-sale-guide-{{loop.index}}" class="form-control form-control-sm text-center" onchange="addSale('drink_items', '{{brand.brand_ref}}','#{{brand.brand_ref}}-quantiy-{{loop.index}}', '#{{brand.brand_ref}}-sale-guide-{{loop.index}}')">
+				                                    {% for sale_guide in brand.sale_guides %}
+				                                        {% if (brand.quantity_available * sale_guide.quantity_in_purchase_unit) > 1 %}
+				                                            <option value="{{sale_guide.id}}">
+				                                                {{(brand.quantity_available * sale_guide.quantity_in_purchase_unit)|int}}  ({{sale_guide.sale_unit}}) <span>=></span> {{sale_guide.sale_price}}@
+				                                            </option>
+				                                        {% endif %}
+				                                    {% endfor %}
+				                                </select>
+				                            </td>
+
+				                            <td>
+				                                <div class="row">
+				                                    <div class="col-md-4" align="center">
+				                                        <button id="minus" onmouseup="changeQuantity(-1, '#{{brand.brand_ref}}-quantiy-{{loop.index}}')" onclick="addSale('drink_items', '{{brand.brand_ref}}','#{{brand.brand_ref}}-quantiy-{{loop.index}}', '#{{brand.brand_ref}}-sale-guide-{{loop.index}}')" class="btn btn-dark btn-sm"><span class="fa fa-minus"></span></button>
+				                                    </div>
+
+				                                    <div class="col-md-4 my-auto">
+				                                        <label id="{{brand.brand_ref}}-quantiy-{{loop.index}}" name="quantity" class="form-control form-control-sm text-center">{% if brand.sale %}{{brand.sale.quantity}}{% else %}0{% endif %}</label>
+				                                    </div>
+
+				                                    <div class="col-md-4" align="center">
+				                                        <button id="plus" onmouseup="changeQuantity(1, '#{{brand.brand_ref}}-quantiy-{{loop.index}}')" onclick="addSale('drink_items', '{{brand.brand_ref}}','#{{brand.brand_ref}}-quantiy-{{loop.index}}', '#{{brand.brand_ref}}-sale-guide-{{loop.index}}')" class="btn btn-dark btn-sm">
+				                                            <span class="fa fa-plus"></span>
+				                                        </button>
+				                                    </div>
+				                                </div>
+				                            </td>
+			                            {% endif %}
+			                        </tr>
+			                    {% endif %}
+		                    {% endfor %}
+	                    </tbody>
+	                </table>
+	            </div>
+	        {% endfor %}
+
+	        {% for food_category in food_categories %}
+	            <div class="tab-pane fade show" id="foods-tab-{{loop.index}}" role="tabpanel" aria-labelledby="pills-{{loop.index}}-tab">
+	                <table class="table table-responsive-sm border">
+	                    <thead>
+	                        <th class="text-center shadow">{{ food_category.name }}</th>
+	                    </thead>
+
+	                    <tbody>
+	                    {% for food in food_category.foods %}
+		                    <tr {% if food.sale %}class='bg-light'{% endif %}>
+		                        <td>{{ food.name }}</td>
+		                        <td>
+		                            {{ food.sale_price }} @ {{ food.sale_unit }}
+		                        </td>
+
+		                        <td>{{ food.units_available }} ({{ food.sale_unit }})</td>
+
+		                        <td>
+		                            <div class="row">
+		                                <div class="col-md-4" align="center">
+		                                    <button id="minus" onmouseup="changeQuantity(-1, '#{{food.food_ref}}-quantiy-{{loop.index}}')" onclick="addSale('food_items','{{food.food_ref}}','#{{food.food_ref}}-quantiy-{{loop.index}}', null)" class="btn btn-dark btn-sm"><span class="fa fa-minus"></span></button>
+		                                </div>
+
+		                                {% if sold_items['food_items'].get(food.id) %}
+							            {% with quantity=sold_items['food_items'].get(food.id) %}
+		                                <div class="col-md-4">
+		                                    <label id="{{food.food_ref}}-quantiy-{{loop.index}}" class="form-control text-center form-control-sm">{% if food.sale %}{{food.sale.quantity}}{% else %}{{quantity}}{% endif %}</label>
+		                                </div>
+		                                {% endwith %}
+		                                {% else %}
+		                                <div class="col-md-4">
+		                                    <label id="{{food.food_ref}}-quantiy-{{loop.index}}" class="form-control text-center form-control-sm">{% if food.sale %}{{food.sale.quantity}}{% else %}0{% endif %}</label>
+		                                </div>
+				                        {% endif %}
+
+		                                <div class="col-md-4" align="center">
+		                                    <button id="plus" onmouseup="changeQuantity(1, '#{{food.food_ref}}-quantiy-{{loop.index}}')" onclick="addSale('food_items','{{food.food_ref}}','#{{food.food_ref}}-quantiy-{{loop.index}}', null)" class="btn btn-dark btn-sm"><span class="fa fa-plus"></span></button>
+		                                </div>
+		                            </div>
+		                        </td>
+		                    </tr>
+	                    {% endfor %}
+	                    </tbody>
+	                </table>
+	            </div>
+	        {% endfor %}
+	    </div>
+	</div>
+    
+	<div class="col-md-4 card p-1">
+		<h4 class="px-3 py-1 mb-0">
+			{{order.order_ref}}
+			<a href="" class="btn btn-sm btn-dark float-right"><span class="fa fa-refresh"></span> Refresh</a>
+		</h4>
+
+	  	<div class="container" style="overflow-y: auto; max-height: 400px; min-height: 400px;">
+			<div class="row">
+				<div class="col-md-12">
+					<table class="table table-hover border table-sm table-striped">
+						<thead>
+							<th>Item</th>
+							<th>Quantity</th>
+							<th>Price</th>
+						</thead>
+						<tbody id="orders-table-body">
+							<tr>
+								<td colspan='3' align="center">
+									loading Sales ...
+								</td>
+							</tr>
+						</tbody>
+						<tfoot>
+							<tr>
+								<td>Total Bill</td>
+								<td colspan="2" align="center">
+									<strong><label id="bill-field">0</label></strong>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+					<form id="order-form" action="{{url_for('order.edit_order', id=order.id)}}" method="POST">
+						<input id="sales-hidden-input" type="hidden" name="sales" />
+					</form>
+					<button class="btn btn-success btn-block" onclick="submitForm()">
+						Save Order
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$('.tab-link').first().click()
+
+    function changeQuantity(arg, input_id){
+        val = $(input_id).html();
+        if(val==0 && arg==-1)return
+        if(val){$(input_id).html(parseInt(val)+arg)}
+        else{$(input_id).html(0); changeQuantity(arg, input_id)}
+    }
+
+    let order = {"food_items":{},"drink_items":{}};
+    let saleItems;
+    let bill = 0;
+    let data;
+
+	function getData(){
+		$.ajax({
+		    data : {},
+		    type : 'GET',
+		    url : "{{url_for('order.get_edit_order_data', id=order_id)}}"
+		}).done((data)=>{
+		    data = data;
+		    saleItems = data['sale_items'];
+		    order = data['order']["sales"]
+		    loadOrders()
+		})
+	}
+	getData();
+
+	function addSale(item_type, item_ref, quantity_input, sale_guide_input){
+        quantity = $(quantity_input).html();
+        quantity_available_in_primary_units = saleItems[item_type][item_ref]["quantity_available"]
+
+        if(quantity==0) {
+            delete order[item_type][item_ref]
+        }
+        else{
+            // for items with multiple sale guides
+            if (sale_guide_input){
+                sale_guide_id = $(sale_guide_input).val()
+                sale_guide = {
+                    sale_guide_id : sale_guide_id,
+                    sale_unit : saleItems[item_type][item_ref]["sale_guides"][sale_guide_id]["sale_unit"],
+                    sale_price : saleItems[item_type][item_ref]["sale_guides"][sale_guide_id]["sale_price"],
+                    quantity_ratio : saleItems[item_type][item_ref]["sale_guides"][sale_guide_id]["quantity_ratio"],
+                    sale_unit_quantity_available : saleItems[item_type][item_ref]["sale_guides"][sale_guide_id]["quantity_available_in_sale_units"]
+                }
+            // for items with no sale guide 
+            }else{
+                sale_guide = {
+                    sale_guide_id : null,
+                    sale_unit : saleItems[item_type][item_ref]["sale_unit"],
+                    sale_price : saleItems[item_type][item_ref]["sale_price"],
+                    quantity_ratio : saleItems[item_type][item_ref]["quantity_ratio"],
+                    sale_unit_quantity_available : saleItems[item_type][item_ref]["quantity_available_in_sale_units"],
+                }
+            }
+
+            if (quantity > sale_guide["sale_unit_quantity_available"]) {
+                $(quantity_input).html(sale_guide["sale_unit_quantity_available"])
+                addSale(item_type, item_ref, quantity_input, sale_guide_input)
+                return
+            }
+
+            order[item_type][item_ref] = {
+                id : saleItems[item_type][item_ref]["id"],
+                name : saleItems[item_type][item_ref]["name"],
+                quantity : quantity,
+                sale_unit : sale_guide["sale_unit"],
+                sale_price : sale_guide["sale_price"],
+                sale_unit_quantity : sale_guide["sale_unit_quantity"],
+                quantity_ratio : sale_guide["quantity_ratio"],
+                sale_guide_id : sale_guide["sale_guide_id"],
+                quantity_available_in_sale_units : sale_guide["quantity_available_in_sale_units"]
+            }
+        }
+        loadOrders();
+    }
+
+    function loadOrders() {
+        $('#orders-table-body').html('');
+        foodSalesList = Object.entries(order["food_items"])
+        drinkSalesList = Object.entries(order["drink_items"])
+        bill = 0;
+
+        for (var i=0; i < drinkSalesList.length; i++){
+            item = drinkSalesList[i][1]
+            if(item["name"]){
+                $('#orders-table-body').append(
+                    $(`<tr id='row${i}'></tr>`).append(
+                        $(`<td></td>`).html(item["name"]),
+                        $(`<td></td>`).html(`${item["quantity"]} (${item["sale_unit"]})`),
+                        $('<td></td>').html(parseInt(item["quantity"]) * parseInt(item["sale_price"])),
+                    )
+                );
+                bill += parseInt(item["quantity"]) * parseInt(item["sale_price"])
+            }
+        }
+
+        for (var i=0; i < foodSalesList.length; i++){
+            item = foodSalesList[i][1]
+            if(item["name"]){
+                $('#orders-table-body').append(
+                    $(`<tr id='row${i}'></tr>`).append(
+                        $(`<td></td>`).html(item["name"]),
+                        $(`<td></td>`).html(`${item["quantity"]} (${item["sale_unit"]})`),
+                        $('<td></td>').html(parseInt(item["quantity"]) * parseInt(item["sale_price"])),
+                    )
+                );
+                bill += parseInt(item["quantity"]) * parseInt(item["sale_price"])
+            }
+        }
+        $('#sales-hidden-input').attr("value", JSON.stringify(order))
+        $("#bill-field").html(bill)
+        $("#bill-input").val(bill)
+        calculateBalance()
+    }
+
+    function calculateBalance(){
+        if (parseInt($('#paid-input').val()) > bill) {
+            alert(`Amount paid cannot be more than the ${bill}`)
+            return
+        }
+        $('#balance-output').html(
+                bill - $('#paid-input').val()
+            )
+    }
+
+    function submitForm() {
+    	sales = $('#sales-hidden-input').val();
+
+	    // sales object validations
+	    try{
+	      all_sales = JSON.parse(sales)
+	      drink_sales = all_sales["drink_items"]
+	      food_sales = all_sales["food_items"]
+
+	      if ( !( (Object.entries(drink_sales).length || Object.entries(food_sales).length ) ) ) {
+	        alert("No sales in this order! Add sales and submit")
+	        return
+	      }
+	    }catch{
+	      alert("No sales in this order! Add sales and submit")
+	      return
+	    }
+
+    	$("#order-form").submit()
+    
+  }
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'global/base.html' %}
+
+{% block body %}
+
+{% if current_user.cashier %}
+	{% if current_user.cashier.get_current_session() %}
+		<div class="container-fluid">
+			<div class="row text-white fixed" style="font-size: 22px; background-color: rgba(56, 33, 13, 0.966);">
+
+				<div class="col-md-8 col-sm-12 py-2">
+					<h1 class="d-inline">
+						<img class="img-thumbnail rounded-circle shadow" height="65px" width="65px" src="{{ url_for('static', filename='img/logo.png') }}"> AMOBIT<small>tech</small>
+						<button class="btn btn-light float-md-none float-right" data-toggle="collapse" href="#mobile-menu" role="button" aria-expanded="false" aria-controls="mobile-menu"><span class="fa fa-navicon"></span></button>
+					</h1>
+				</div>
+
+				<div class="col-md-4 col-sm-12 py-3 text-white" align="right">
+					<a href="{{ url_for('cashier.change_password') }}" class="btn btn-outline-light"><small><span class="fa fa-user"></span> {{current_user.cashier.first_name}} {{current_user.cashier.last_name}} (Cashier)</small></a>
+
+					<a href="{{ url_for('session.close_session') }}"><button class="btn btn-outline-light border-0"><span class="fa fa-sign-out"></span> Logout</button></a>
+				</div>
+			</div>
+
+			<div class="row fixed" style="top:80px;">
+				<div id="mobile-menu" class="col-md-12 pb-2 collapse bg-light fixed" style="box-shadow: 5px 5px 5px #ccc;">
+					<div class="row list-group m-0">
+						<div class="row">
+
+							<div class="col-md-4">
+								<div>
+									<h3 class="my-2">Orders</h3>
+								</div>
+
+								<a href="{{ url_for('order.get_orders') }}" class="list-group-item list-group-item-action {% if mod=='order' %} {{'menu-active'}} {% endif %}" style="border-radius: 0px;">
+									My Orders
+								</a>
+							</div>
+
+							<div class="col-md-4">
+								<div>
+									<h3 class="my-2">New Order</h3>
+								</div>
+
+								<a href="{{ url_for('sale.sales') }}" class="list-group-item list-group-item-action {% if mod=='sale' %} {{'menu-active'}} {% endif %}" style="border-radius: 0px;">
+									New Order
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="container-fluid p-0">
+					{% for category, message in get_flashed_messages(with_categories=true) %}
+						<div class="alert rounded-0 py-0 px-2 m-0 d-block alert-{{category}} text-center alert-dismissable">
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+							{{ message }}
+						</div>
+					{% endfor %}
+				</div>
+
+				<div class="col-md-12">
+
+					{% block content %}
+
+					{% endblock %}
+				</div>
+			</div>
+
+		</div>
+	{% else %}
+		<div class="container-fluid" align="center">
+			<label class="display-4">Cashier session not found</label>
+			<hr>
+			<p>Looks like your session was terminated. Click "Restart Now" to start a new session</p>
+			<hr>
+			<form method="POST" action="{{ url_for('cashier.logout') }}">
+				<input value="{{current_user.cashier.id}}" type="hidden" name="cashier" />
+				<button class="btn btn-danger">Restart Now</button>
+			</form>
+		</div>
+	{% endif %}
+{% endif %}
+
+{% endblock %}

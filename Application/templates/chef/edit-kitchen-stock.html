@@ -1,0 +1,34 @@
+{% extends 'chef/chef-base.html' %}
+
+{% block content %}
+	<div class="login-content card bg-light shadow p-2">
+		<form method="POST" action="{{url_for('kitchen_stock.edit_kitchen_stock')}}">
+			<div class="container">
+				<h3>Edit Kitchen Stock - {{stock.name}}</h3>
+
+				<hr>
+				
+				<input type="hidden" name="kitchen-stock" value="{{ stock.id }}">
+				
+				<div class="form-group">
+					<label class="form-check-label">Kitchen Item</label>
+					<input class="form-control" type="text" name="kitchen-item" value="{{ stock.name }}" required>
+				</div>
+				
+				<hr>
+
+				<div class="form-group">
+					<label class="form-check-label">Usage Unit</label>
+					<input class="form-control" type="text" name="usage-unit" value="{{ stock.usage_unit }}" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary float-right w-25">Save</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+<h2>Cashiers</h2>
+<hr>
+{% if cashier_to_edit %}
+<div class="container">
+	<div class="row">
+		<div class="col-md-5 card p-4 bg-light">
+			<form method="POST" action="{{url_for('cashier.edit_cashier')}}">
+				<h3>Edit Cashier - {{ cashier_to_edit.last_name }}</h3>
+
+				<div class="form-group">
+					<input type="hidden" name="cashier" value="{{ cashier_to_edit.id }}"/>
+					<label class="form-check-label">First Name</label>
+					<input class="form-control" type="text" name="first-name" value="{{cashier_to_edit.first_name}}" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Last Name</label>
+					<input class="form-control" type="text" name="last-name" value="{{cashier_to_edit.last_name}}" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<label class="form-check-label">Username</label>
+					<input class="form-control" type="text" name="username" placeholder="Username" value="{{cashier_to_edit.user.username}}" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-block">Update</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="col-md-5 card ml-1 p-4 bg-light">
+			
+			<form method="POST" action="{{url_for('cashier.reset_password')}}">
+				<h3 class="form-check-label">Reset Password</h3>
+				<div class="form-group">
+					<input type="hidden" name="cashier" value="{{ cashier_to_edit.id }}"/>
+					<label class="form-check-label">Password</label>
+					<input class="form-control" type="password" name="password" placeholder="Password" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Confirm Password</label>
+					<input class="form-control" type="password" name="password-1" placeholder="Confirm Password" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-block">Reset</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% else %}
+	<div class="row pt-1">
+		<div class="col-md-5">
+			<form method="POST" class="p-2 bg-light card shadow" action="{{url_for('cashier.add_cashier')}}">
+				<h3 class="text-center m-0">Add Cashier</h3>
+				<hr>
+				<div class="form-group">
+					<small class="form-check-label">First Name</small>
+					<input class="form-control" type="text" name="first-name" required>
+				</div>
+
+				<div class="form-group">
+					<small class="form-check-label">Last Name</small>
+					<input class="form-control" type="text" name="last-name" required>
+				</div>
+
+				<div class="form-group">
+					<small class="form-check-label">Username</small>
+					<input class="form-control" type="text" name="username" required>
+				</div>
+
+				<div class="form-group">
+					<small class="form-check-label">Password</small>
+					<input class="form-control" type="password" name="password" required>
+				</div>
+
+				<div class="form-group">
+					<small class="form-check-label">Confirm Password</small>
+					<input class="form-control" type="password" name="password-1" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-block">Register</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="col-md-7">
+			<table class="table table-responsive-sm table-hover border">
+				<thead>
+				    <tr>
+				    	<th scope="col">Cashier ID</th>
+				    	<th scope="col">Name</th>
+				    	<th scope="col">Username</th>
+				    	<th scope="col"></th>
+				    	<th scope="col"></th>
+				    </tr>
+				</thead>
+
+				<tbody>
+					{% for cashier in cashiers %}
+						<tr scope="row" style="cursor: pointer;">
+							<td>{{cashier.id}}</td>
+							<td>{{cashier.first_name}} {{cashier.last_name}}</td>
+							<td>{{cashier.user.username}}</td>
+							<td>
+								<form action="{{ url_for('cashier.edit_cashier') }}">
+									<input type="hidden" name="cashier" value="{{ cashier.id }}"/>
+									<button type="submit" class="btn btn-info"><span class="fa fa-pencil"></span> Edit</button>
+								</form>
+							</td>
+
+							<td>
+								<button type="submit" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteCashier{{cashier.id}}"><span class="fa fa-trash"></span> Delete</button>
+
+								<div class="modal fade" id="confirmDeleteCashier{{cashier.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+									<div class="modal-dialog" role="document">
+									    <div class="modal-content">
+									      <div class="modal-header">
+									        <h5 class="modal-title" id="exampleModalLabel">Confirm Delete</h5>
+									        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									          <span aria-hidden="true">&times;</span>
+									        </button>
+									      </div>
+									      <div class="modal-body">
+									        Are you sure you want to delete this cashier?
+									      </div>
+									      <div class="modal-footer">
+									      	<form method="POST" action="{{ url_for('cashier.delete_cashier') }}">
+												<input type="hidden" name="cashier" value="{{cashier.id}}">
+									        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+				  								<button type="submit" class="btn btn-danger"><span class="fa fa-trash"></span>  Delete</button>
+							  				</form>
+									      </div>
+									    </div>
+									</div>
+					  			</div>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% endif %}
+{% endblock	 %}

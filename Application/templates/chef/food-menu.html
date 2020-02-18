@@ -1,0 +1,55 @@
+{% extends 'chef/chef-base.html' %}
+{% block content %}
+	<div class="row p-2">
+		<div class="col-md-2 my-auto"><label>Filter by category</label></div>
+		<div class="col-md-7">
+			<form id="filter-form" method="GET" action="{{ url_for('food.filter_food_menu') }}">
+				<select id='category-selector' onchange="submitForm()" class="form-control" type="submit" name="category">
+					<option>---</option>
+					<option value="All">All</option>
+					{% for category in categories %}
+						 <option value="{{category.id}}">{{category.name}}</option>
+					{% endfor %}
+				</select>
+			</form>
+			<script>
+				submitForm = function(){
+					$('#filter-form').submit();
+				}
+			</script>
+		</div>
+	</div>
+	<table class="table table-responsive-sm table-hover border">
+		<thead>
+		    <tr>
+		    	<th scope="col">Category</th>
+		    	<th scope="col">Foods</th>
+		    	<th scope="col">Selling</th>
+		    	<th scope="col">Units Available</th>
+		    	<th scope="col"></th>
+		    </tr>
+		  </thead>
+
+		  <tbody>
+		  	{% for food in foods %}
+		  		<tr scope="row" style="cursor: pointer;">
+		  			<td>{{ food.category.name }}</td>
+		  			<td>{{ food.name }}</td>
+		  			<td>
+		  				{{ food.sale_price }} @ {{ food.sale_unit }}
+		  			</td>
+
+		  			<td>{{ food.units_available }} ({{ food.sale_unit }})</td>
+
+					<td>
+						<form action="{{ url_for('food.update_food_units') }}">
+							<input type="hidden" name="food" value="{{ food.id }}"/>
+							<button type="submit" class="btn btn-info"><span class="fa fa-plus"></span> Add Units</button>
+						</form>
+		  			</td>
+		  		</tr>
+		  	{% endfor %}
+		  </tbody>
+	</table>
+
+{% endblock %}

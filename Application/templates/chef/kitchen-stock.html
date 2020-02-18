@@ -1,0 +1,121 @@
+{% extends 'chef/chef-base.html' %}
+
+{% block content %}
+	<div class="row p-2">
+		{% if current_user.chef.admin %}
+		<button class="btn btn-primary" data-toggle="modal" data-target="#addKitchenItemModel"><span class="fa fa-plus"></span> Add New Kitchen Item</button>
+		{% endif %}
+		<div class="modal fade" id="addKitchenItemModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+			<form method="POST" action="{{url_for('kitchen_stock.add_kitchen_stock')}}">
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h5 class="modal-title">New Kitchen Item</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+
+					<div class="modal-body">
+						<div class="form-group">
+							<label class="form-check-label">Kitchen Item</label>
+							<input class="form-control" type="text" name="kitchen-item" required>
+						</div>
+
+						<hr>
+
+						<div class="form-group">
+							<label class="form-check-label">Usage Unit</label>
+							<input class="form-control" type="text" name="usage-unit" required>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Save</button>
+					</div>
+				</div>
+			</form>
+		  </div>
+		</div>
+	</div>
+
+	<div class="row p-2">
+		<table class="table table-responsive-sm table-hover border">
+			<thead>
+			    <tr>
+			    	<th scope="col">Item</th>
+			    	<th scope="col">Usage Unit</th>
+			    	{% if current_user.chef.admin %}<th scope="col"></th>{% endif %}
+			    	<th scope="col">Available Stock</th>
+			    </tr>
+			  </thead>
+
+			  <tbody>
+			  	{% for stock in all_kitchen_stock %}
+			  		<tr scope="row" style="cursor: pointer;">
+			  			<td>{{ stock.name }}</td>
+			  			<td>{{ stock.usage_unit }}</td>
+
+			  			{% if current_user.chef.admin %}
+						<td>
+							<form class="d-inline" action="{{ url_for('kitchen_stock.edit_kitchen_stock') }}">
+								<input type="hidden" name="kitchen-stock" value="{{ stock.id }}"/>
+								<button type="submit" class="btn btn-info"><span class="fa fa-pencil"></span> Edit</button>
+							</form>
+
+							{% if stock.quantity_available > 0 %}
+								<label class="text-info">[Cannot be deleted]</label>
+				  			{% else %}
+				  				<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteKitchenStockModal{{stock.id}}"><span class="fa fa-trash"></span> Delete</button>
+
+								<div class="modal fade" id="confirmDeleteKitchenStockModal{{stock.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+									<div class="modal-dialog" role="document">
+									    <div class="modal-content">
+									      <div class="modal-header">
+									        <h5 class="modal-title" id="exampleModalLabel">Confirm Delete</h5>
+									        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									          <span aria-hidden="true">&times;</span>
+									        </button>
+									      </div>
+									      <div class="modal-body">
+									        Are you sure you want to delete '{{stock.name}}'?
+									      </div>
+									      <div class="modal-footer">
+									      	<form class="d-inline" action="{{ url_for('kitchen_stock.delete_kitchen_stock') }}" method="POST">
+									        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+							  					<input type="hidden" name="kitchen-stock" value="{{ stock.id }}">
+							  					<button class="btn btn-danger"><span class="fa fa-trash"></span> Delete</button>
+							  				</form>
+									      </div>
+									    </div>
+									</div>
+					  			</div>
+				  			{% endif %}
+			  			</td>
+			  			{% endif %}
+
+			  			<td>
+			  				{{ stock.quantity_available }} ({{ stock.usage_unit }})
+			  				{% if current_user.chef.admin %}
+							<form action="{{ url_for('kitchen_stock.add_stock') }}">
+								<input type="hidden" name="kitchen-stock" value="{{ stock.id }}"/>
+								<button  class="btn btn-success" type="submit"><span class="fa fa-cart-plus"></span> Purchase Stock</button>
+							</form>
+							{% endif %}
+
+							{% if stock.quantity_available > 0 %}
+							<form action="{{ url_for('kitchen_stock.register_usage') }}">
+								<input type="hidden" name="kitchen-stock" value="{{ stock.id }}"/>
+								<button  class="btn btn-warning" type="submit"><span class="fa fa-edit"></span> Register Usage</button>
+							</form>
+							{% endif %}
+						</td>
+			  		</tr>
+			  	{% endfor %}
+			  </tbody>
+		</table>
+	</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+<h2>Drink Brands</h2>
+<hr>
+
+<div class="login-content card bg-light shadow p-1">
+	<form method="POST" action="{{url_for('brand.edit_brand')}}">
+
+		<div class="container">
+			<h3>Edit Brand - {{brand.name}}</h3>
+			<hr>
+			<div class="form-group">
+				<label class="form-check-label">Brand category</label>
+				<select name="category" class="form-control">
+					{% for category in categories %}
+						{% if category == brand.category %}
+							<option value="{{ category.id }}" selected>{{ category.name }}</option>
+						{% else %}
+							<option value="{{ category.id }}">{{ category.name }}</option>
+						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
+
+			<div class="form-group">
+				<input type="hidden" name="brand-id" value="{{ brand.id }}">
+				<label class="form-check-label">Brand name</label>
+				<input class="form-control" type="text" name="brand" value="{{ brand.name }}" required>
+			</div>
+
+			<hr>
+
+			<div class="form-group">
+				<input type="hidden" name="brand-id">
+				<label class="form-check-label">Purchase Unit</label>
+				<input class="form-control" type="text" name="purchase-unit" value="{{brand.purchase_guide.purchase_unit}}" placeholder="Unit" required>
+			</div>
+
+			<div class="form-group">
+				<label class="form-check-label">Purchase Price</label>
+				<input class="form-control" type="number" name="purchase-price" value="{{brand.purchase_guide.purchase_price}}" placeholder="Price" required>
+			</div>
+
+			<hr>
+
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary float-right w-25">Save</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends 'cashier/cashier-base.html' %}
+
+{% block content %}
+<div class="container bg-white">
+	<h3 class="m-0 py-2">Order - {{order.order_ref}} <div class="float-right"><button class="btn btn-dark btn-md" onclick="printDiv('order', true)"><span class="fa fa-print"></span> Print</button></div></h3>
+	<hr>
+	<div class="row form-group pt-1">
+		<div id="order" class="col-md-6 card p-2 shadow">
+			<div id="header-order"></div>
+			<h4 class="text-center">Items Ordered</h4>
+			<table class="table border">
+				<thead>
+				    <tr>
+				    	<th scope="col">Item</th>
+				    	<th scope="col">Quantity</th>
+				    	<th scope="col">Price</th>
+				    </tr>
+				 </thead>
+				 
+				 <tbody class="bg-light">
+				 	{% for sale in order.sales %}
+				 	<tr>
+				 		<td>
+				 			{% if sale.brand %}
+			  					{{ sale.brand.name }}
+			  				{% elif sale.food %}
+			  					{{ sale.food.name }}
+			  				{% endif %}
+				 		</td>
+				 		<td>{{ sale.quantity }} ({{ sale.sale_unit }})</td>
+				 		<td>{{ sale.sale_price * sale.quantity }}</td>
+				 	</tr>
+				 	{% endfor %}
+				 </tbody>
+
+				<tfoot>
+				 	<tr>
+					 	<td>Total Bill</td>
+					 	<td colspan="2" align="center"><strong><label>{{ order.bill }}</label></label></td>
+				 	</tr>
+
+				 	<tr>
+					 	<td>Amount Paid</td>
+					 	<td colspan="2" align="center">
+					 		<strong><label class="{% if order.paid < order.bill %} text-danger {% endif %}">{{ order.paid }}</label></strong>
+					 		{% if order.paid == order.bill %} <span class="fa fa-check text-success"></span> {% endif %}
+					 	</td>
+					</tr>
+
+					<tr>
+					 	<td>Customer/Table</td>
+					 	<td colspan="2" align="center"><strong><label>{{ order.customer }}</label></strong></td>
+				 	</tr> 
+
+				 	<tr>
+					 	<td>Cashier</td>
+					 	<td colspan="2" align="center"><strong><label>{{ order.cashier.first_name }} {{ order.cashier.last_name }}</label></strong></td>
+				 	</tr> 
+				</tfoot>
+			</table>
+		</div>
+
+		<div class="col-md-6 pt-2">
+			{% if order.open %}
+			<div class="row" align="right">
+				<div class="col" align="center">
+					<a href="{{ url_for('order.edit_order', id=order.id) }}">Edit Sales</a>
+				</div>
+			</div>
+			{% else %}
+				<div class="col" align="center">
+					<label class="text-danger font-weight-bold">Order Closed</label>
+				</div>
+			{% endif %}
+
+			<hr>
+
+			{% with balance=order.bill-order.paid %}
+				<div class="row">
+					<div class="col-md-6">
+						<small>Total Cash Recived</small>
+						<label class="form-control bg-light rounded-0">{{ order.paid }}</label>
+					</div>
+					<div class="col-md-6">
+						<small>{% if balance >= 0 %}Cash Remaining {% else %}Cash to Return{% endif %}</small>
+						<label id="cash-remaining" class="{% if (order.bill-order.paid) >= 0 %}border-success{% else %}border-danger{% endif %} form-control bg-light rounded-0">{{balance}}
+							{% if balance < 0 %}
+								<a href="{{ url_for('order.settle_payment', id=order.id) }}" class="btn btn-outline-success py-0 float-right">Settle Balance</a>
+							</form>
+							{% endif %}
+						</label>
+					</div>
+				</div>
+
+				<hr>
+
+				{% if balance > 0 %}
+					<div class="row">
+						<div class="col-md-8">
+							<label>Add Payment</label>
+							<form id="payment-form" method="POST" action="{{ url_for('order.add_payment', id=order.id) }}">
+								<input type="hidden" name="order" value="{{ order.id }}" />
+								<input id="payment-added" name="payment-added" type="number" class="form-control shadow rounded-0" />	
+							</form>
+						</div>
+
+						<div class="col-md-4">
+							<br>
+							<button class="btn btn-success btn-block mt-2" onclick="submit()"><span class="fa fa-save"></span> Save</button>
+						</div>
+					</div>
+				{% elif balance == 0 %}
+					<div class="row">
+						{% if order.open %}
+							<div class="col" align="right">
+
+								<button type="submit" class="btn btn-warning" data-toggle="modal" data-target="#confirmCloseOrder"><span class="fa fa-check"></span> Close Order</button>
+
+								<div class="modal fade" id="confirmCloseOrder" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+									<div class="modal-dialog" role="document">
+									    <div class="modal-content">
+									      <div class="modal-header">
+									        <h5 class="modal-title" id="exampleModalLabel">Confirm Close Order</h5>
+									        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+									          <span aria-hidden="true">&times;</span>
+									        </button>
+									      </div>
+									      <div class="modal-body" align="center">
+									        Close this Order ({{order.order_ref}})?
+									      </div>
+									      <div class="modal-footer">
+									      	<form method="POST" action="{{ url_for('order.close_order', id=order.id) }}">
+									        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+				  								<button type="submit" class="btn btn-warning"><span class="fa fa-check"></span>  Close</button>
+							  				</form>
+									      </div>
+									    </div>
+									</div>
+					  			</div>
+							</div>
+						{% else %}
+							<div class="col" align="center">
+								<label class="text-danger font-weight-bold">Order Closed</label>
+							</div>
+						{% endif %}
+					</div>
+				{% endif %}
+			{% endwith %}
+		</div>
+	</div>
+</div>
+
+<script>
+	function submit(){
+		var payment_added = parseInt($('#payment-added').val())
+		var cash_remaining = parseInt($('#cash-remaining').html())
+		if (!payment_added) {
+			alert(`Invalid Payment!`)
+			return
+		}
+		if (payment_added > {{ order.bill - order.paid }}) {
+			alert(`Payment cannot be greater than ${cash_remaining}`)
+			return
+		}
+		$('#payment-form').submit()
+	}
+</script>
+
+
+
+{% endblock %}

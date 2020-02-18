@@ -1,0 +1,67 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+<h2>Drink Brands</h2>
+<hr>
+<div class="container">
+    <div class="row">
+        <h3 class="my-auto"> Sale Guides - {{ brand.name }}</h3>
+    </div>
+    <hr>
+    <div class="row">
+        <div clas="col-md-6">
+            <form class="card p-2 bg-light" action="{{ url_for('brand.sale_guides') }}" method="POST">
+                <div class="form-group">
+                    <input type="hidden" name="brand" value="{{ brand.id }}">
+                    <label>Sale Unit</label>
+                    <input class="form-control" type="text" name="sale-unit" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Sale Price @</label>
+                    <input class="form-control" type="text" name="sale-price" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Number of <strong>Sale Units</strong> in 1 <strong>Purchase Unit ({{brand.purchase_guide.purchase_unit}})</strong></label>
+                    <input class="form-control" type="number" name="quantity-in-purchase-unit" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block">Add Sale Guide</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-6">
+            <table class="table table table-responsive-sm border">
+                <thead>
+                    <th scope="col">Sale Unit</th>
+                    <th scope="col">Sale Price</th>
+                    <th scope="col">Quantity in 1 {{ brand.purchase_guide.purchase_unit }}</th>
+                    <th scope="col"></th>
+                </thead>
+                <tbody>
+                    {% if brand.sale_guides|length == 0 %}
+                        <label class="display-4 text-muted">No sales guides!</label>
+                    {% else %}
+                        {% for sale_guide in brand.sale_guides %}
+                            <tr scope="row">
+                                <td>{{ sale_guide.sale_unit }}</td>
+                                <td>{{ sale_guide.sale_price }}</td>
+                                <td>{{ sale_guide.quantity_in_purchase_unit }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('brand.delete_sale_guide') }}">
+                                        <input type="hidden" name="sale-guide-id" value="{{ sale_guide.id }}">
+                                        <button type="submit" class="btn btn-danger btn-sm"><span class="fa fa-trash"></span> Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

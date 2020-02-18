@@ -1,0 +1,125 @@
+<div class="col-md-4 card p-1">
+	<h4 class="px-3 py-1 m-0">
+		New Order
+		<a href="" class="btn btn-sm btn-dark float-right"><span class="fa fa-refresh"></span> Refresh</a>
+	</h4>
+
+  	<div class="container" style="overflow-y: auto; max-height: 400px; min-height: 400px;">
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-hover border table-sm table-striped">
+					<thead>
+						<th>Item</th>
+						<th>Quantity</th>
+						<th>Price</th>
+					</thead>
+					<tbody id="orders-table-body">
+
+					</tbody>
+					<tfoot>
+						<tr>
+							<td>Total Bill</td>
+							<td colspan="2" align="center"><strong><label id="bill-field">0</label></strong></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+
+		<form class="card p-2 bg-light" method="POST" id="order-form" action="{{ url_for('sale.add_sales') }}">
+			<input id="sales-hidden-input" type="hidden" name="sales" value="" />
+			<div class="row form-group">
+				<div class="col-md-4">
+					<label class="border-bottom border-dark">Customer/Table</label>
+				</div>  
+				<div class="col-md-8">
+					<input id="customer-input" type="text" name="customer" class="form-control form-control-sm shadow"/>
+				</div>  
+			</div>
+
+			{% if waiters %}
+				<div class="row form-group">
+					<div class="col-md-4">
+						<label class="border-bottom border-dark">Waiter</label>
+					</div>  
+					<div class="col-md-8">
+						<select id="waiter-input" class="form-control form-control-sm shadow" name="waiter">
+							{% for waiter in waiters %}
+							<option value="{{waiter.id}}">{{waiter.id}} - {{ waiter.first_name }} {{ waiter.last_name }}</option>
+							{% endfor %}
+						</select>
+					</div>  
+				</div>
+			{% endif %}
+
+			<div class="row">
+				<div class="col-md-4">
+					<label class="border-bottom border-dark">Cashier</label>
+				</div>  
+				<div class="col-md-8">
+					<input id="cashier-input" type="hidden" name="cashier" value="{{current_user.cashier.id}}">
+					<label name="cashier" value="{{current_user.cashier.id}}" class="form-control form-control-sm bg-light">{{ current_user.cashier.first_name }} {{current_user.cashier.last_name}} (You)</label>
+				</div>  
+			</div>
+		</form>
+	</div> 
+
+	<div class="col py-2">
+		<button class="btn btn-success btn-block" onclick="submitForm()">Save Order</button>
+	</div>
+
+	<div class="modal" id="submit-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalCenterTitle">Confirm Submission</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<p>Submit Order on Credit?</p>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal"><span class="fa fa-close"></span> Cancel</button>
+				<button id="final-submit-button" onclick="$('#order-form').submit()" type="button" class="btn btn-success"><span class="fa fa-check"></span> Yes, Submit</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+  function submitForm() {
+    waiter = $("#waiter-input").val();
+    cashier = $("#cashier-input").val();
+    customer = $("#customer-input").val();
+    bill = $("#bill-input").val();
+    sales = $('#sales-hidden-input').val();
+
+    // sales object validations
+    try{
+      all_sales = JSON.parse(sales)
+      drink_sales = all_sales["drink_items"]
+      food_sales = all_sales["food_items"]
+
+      if ( !( (Object.entries(drink_sales).length || Object.entries(food_sales).length ) ) ) {
+        alert("No sales in this order! Add sales and submit")
+        return
+      }
+    }catch{
+      alert("No sales in this order! Add sales and submit")
+      return
+    }
+
+    // waiter and cashier validations    
+    if (!(waiter && cashier)){
+      alert("Waiter and Cashier missing!")
+      return
+    }
+
+    $("#order-form").submit()
+    
+  }
+</script>

@@ -1,0 +1,57 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+
+<h2>Menu Items</h2>
+<hr>
+
+<div class="container">
+    <div class="login-content card bg-light shadow p-2">
+		<form method="POST" action="{{url_for('food.edit_food')}}">
+
+			<div class="container">
+				<h3>Edit Food - {{food.name}}</h3>
+				<hr>
+				<div class="form-group">
+					<label class="form-check-label">Food category</label>
+					<select name="category" class="form-control">
+						{% for category in categories %}
+							{% if category == food.category %}
+								<option value="{{ category.id }}" selected>{{ category.name }}</option>
+							{% else %}
+								<option value="{{ category.id }}">{{ category.name }}</option>
+							{% endif %}
+						{% endfor %}
+					</select>
+				</div>
+
+				<div class="form-group">
+					<input type="hidden" name="food-id" value="{{ food.id }}">
+					<label class="form-check-label">Food name</label>
+					<input class="form-control" type="text" name="food" value="{{ food.name }}" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<input type="hidden" name="food-id">
+					<label class="form-check-label">Sale Unit</label>
+					<input class="form-control" type="text" name="sale-unit" value="{{food.sale_unit}}" placeholder="Unit" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Sale Price</label>
+					<input class="form-control" type="number" name="sale-price" value="{{food.sale_price}}" placeholder="Price" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary float-right w-25">Save</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+{% endblock %}

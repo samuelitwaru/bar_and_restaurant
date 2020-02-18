@@ -1,0 +1,25 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h3>Reduce Stock - {{brand.name}}</h3>
+        <hr>
+        <form action="" method="POST">
+            <div class="form-group">
+                <input type="hidden" name="brand-id" value="{{ brand.id }}">
+                <label>Quantity Available ({{ brand.purchase_guide.purchase_unit }})</label>
+                <label class="form-control bg-light">{{ brand.quantity_available }}</label>
+            </div>
+
+            <div class="form-group">
+                <input type="hidden" name="brand" value="{{ brand.id }}">
+                <label>Quantity to reduce ({{ brand.purchase_guide.purchase_unit }})</label>
+                <input class="form-control" type="number" name="quantity" required>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-danger btn-block">Reduce</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

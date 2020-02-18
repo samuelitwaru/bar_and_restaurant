@@ -1,0 +1,25 @@
+SYSTEM INITIAL SETUP
+- The system starts with no manager.
+- A manager has to be created before the system can be used
+- The manager logs into the system with the user credentials specified
+- The manager registers:
+    - Cashiers
+    - Chefs
+    - Brand Categories
+    - Menu Categories
+    - Brands
+        - Sale guides for brands
+    - Foods
+
+SYSTEM USAGE
+- The system can now be used
+
+
+
+
+- search customer order
+- deleting order and take back stock
+- graphical presentations
+
+
+- room management

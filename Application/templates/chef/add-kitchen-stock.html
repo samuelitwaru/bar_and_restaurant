@@ -1,0 +1,63 @@
+{% extends 'chef/chef-base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="login-content card bg-light shadow p-2">
+            <h3>Purchase Stock - {{stock.name}}</h3>
+            <hr>
+            <form action="" method="POST">
+                <legend>Purchase</legend>
+                <div class="form-group">
+                    <input type="hidden" name="stock" value="{{ stock.id }}">
+                    <small>Unit of Purchase</small>
+                    <input class="form-control" type="text" name="purchase-unit" required>
+                </div>
+
+                <div class="form-group">
+                    <small>Quantity Purchased</small>
+                    <input id="quantity" class="form-control" onkeyup='calculateTotal()' onchange="calculateTotal()" type="number" name="purchase-quantity" required>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <div class="col-md-6">
+                            <small>Unit Cost</small>
+                            <input id="unit-price" type="number" onkeyup='calculateTotal()' onchange="calculateTotal()" name="unit-price" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <small>Total Cost</small>
+                            <label id="total-cost" name="unit-price" class="form-control bg-light text-center">0</label>
+                            <script>
+                                function numberWithCommas(x) {
+                                    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                }
+                                function calculateTotal(){
+                                    unit_cost = $('#unit-price').val()
+                                    if(unit_cost == ''){unit_cost=0}
+                                    qty = $('#quantity').val()
+                                    if(qty == ''){qty=0}
+                                    $("#total-cost").html(numberWithCommas(parseInt(unit_cost)*parseInt(qty)))
+                                }
+                                calculateTotal()
+                            </script>
+                        </div>
+                    </div>
+
+                        
+                </div>
+
+                <hr>
+
+                <div class="form-group">
+                    <legend>Stock Added ({{ stock.usage_unit }})</legend>
+                    <input class="form-control" type="number" name="added-stock-quantity" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success btn-block"><span class="fa fa-save"></span> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

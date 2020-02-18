@@ -1,0 +1,41 @@
+<style>
+  .drink-nav-link.tab-link.active{
+    background-color:#343a40;
+    color:#fff;
+  }
+  .drink-nav-link.tab-link{
+    color:#343a40;
+    border:1px solid #000;
+  }
+
+  .food-nav-link.tab-link.active{
+    background-color:#fa9703;
+    color:#fff;
+  }
+  .food-nav-link.tab-link{
+    color:#fa9703;
+    border:1px solid #fa9703;
+  }
+</style>
+
+<div id="mobile-menu" class="p-1 bg-light show shadow-sm row" style="max-height: 140px;overflow-y: auto;">
+    <ul class="nav nav-pills" id="pills-tab" role="tablist">
+      
+      {% for category in categories %}
+        {% if category.brands | length %}
+          <li class="nav-item p-1">
+            <a class="drink-nav-link nav-link tab-link" id="drinks-tab-btn-{{loop.index}}" data-toggle="pill" href="#drinks-tab-{{loop.index}}" role="tab" aria-controls="pills-home" aria-selected="true"><span class="fa fa-glass"></span> {{category.name}} <span class="badge badge-info border border-white"></a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% for food_category in food_categories %}
+        {% if food_category.foods | length %}
+          <li class="nav-item p-1">
+            <a class="food-nav-link nav-link tab-link" id="foods-tab-btn-{{loop.index}}" data-toggle="pill" href="#foods-tab-{{loop.index}}" role="tab" aria-controls="pills-home" aria-selected="true"> <span class="fa fa-cutlery"></span> {{food_category.name}}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    <hr>
+</div>

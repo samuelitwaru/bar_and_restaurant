@@ -1,0 +1,100 @@
+{% extends 'global/base.html' %}
+
+{% block body %}
+
+
+<div class="container">
+	<div class="login-content">
+		<div align="center">
+			<img height="140" class="shadow rounded rounded-circle" src="{{url_for('static', filename='img/logo.png')}}" align="center" />
+		</div>
+		<div id="message">
+			{% for category, message in get_flashed_messages(with_categories=true) %}
+				<div class="alert alert-{{category}} alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					{{ message }}
+				</div>
+			{% endfor %}
+		</div>
+
+		{% if manager_available %}
+			<div class="login-form card bg-light shadow">
+				<h1 class="text-center">Login</h1>
+				<hr>
+				<form method="POST" action="{{url_for('user.login')}}">
+					<div class="form-group">
+						<label class="form-check-label">Username</label>
+						<input class="form-control" type="text" name="username" required>
+					</div>
+
+					<div class="form-group">
+						<label class="form-check-label">Password</label>
+						<input class="form-control" type="password" name="password" required>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<input class="btn btn-success btn-block" type="submit" value="Login">
+							</div>
+						</div>
+					</div>
+				</form>
+				<a href="{{ url_for('manager.reset_password') }}" class="btn btn-link">Reset Password (Manager)</a>
+			</div>
+		{% else %}
+			<div class="login-form card bg-light shadow">
+				<h1 class="text-center">Create Manager</h1>
+				<hr>
+				<form method="POST" action="{{url_for('manager.add_manager')}}">
+					<div class="form-group">
+						<label class="form-check-label">First Name</label>
+						<input class="form-control" type="text" name="first-name" required>
+					</div>
+
+					<div class="form-group">
+						<label class="form-check-label">Last Name</label>
+						<input class="form-control" type="text" name="last-name" required>
+					</div>
+
+					<div class="form-group">
+						<label class="form-check-label">Email <small style="color: orange;">(Enter a valid email address that can be used for security purposes)</small></label>
+						<input class="form-control" type="email" name="email" required>
+					</div>
+
+					<hr>
+
+					<div class="form-group">
+						<label class="form-check-label">Username</label>
+						<input class="form-control" type="text" name="username" placeholder="Username" required>
+					</div>
+
+					<div class="form-group">
+						<label class="form-check-label">Password</label>
+						<input class="form-control" type="password" name="password" placeholder="Password" required>
+					</div>
+
+					<div class="form-group">
+						<label class="form-check-label">Confirm Password</label>
+						<input class="form-control" type="password" name="password-1" placeholder="Confirm Password" required>
+					</div>
+
+					<hr>
+
+					<div class="form-group">
+						<label class="form-check-label">Boss' Email <small style="color: orange;">(For reporting and communication purposes)</small></label>
+						<input class="form-control" type="email" name="boss-email" required>
+					</div>
+
+					<hr>
+					
+					<div class="form-group">
+						<button type="submit" class="btn btn-success btn-block">Create <span class="fa fa-check"></span></button>
+					</div>
+				</form>
+			</div>
+		{% endif %}
+		
+	</div>
+</div>
+
+{% endblock %}

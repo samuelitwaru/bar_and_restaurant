@@ -1,0 +1,136 @@
+</!DOCTYPE html>
+<html>
+
+<head>
+    <title>JavaScript Bar Chart</title>
+    <script src="https://cdn.anychart.com/releases/8.0.0/js/anychart-base.min.js"></script>
+</head>
+<body>
+    <div id="container" style="width: 50%; height: 50%"></div>
+	<style>
+		td, th{
+			border:1px solid black;
+		}
+	</style>
+
+	<div>
+		<div>
+			<h3 style="margin: 0;">Sales from {{date.strftime('%Y-%m-%d')}}</h3>
+		</div>
+		<div>
+			<label>Total Sales: </label><label>{{total_sales}}</label>
+			<label>Fetched: </label><label>{{sales|length}}</label>
+		</div>
+		<table>
+			<thead>
+			    <tr>
+			    	<th>Date</th>
+			    	<th>Item</th>
+			    	<th>Quantity</th>
+			    	<th>Sale Price</th>
+			    	<th>Cashier</th>
+			    	<th>Waiter</th>
+			    </tr>
+			  </thead>
+
+			  <tbody>
+			  	{% if sales|length %}
+				  	{% for sale in sales %}
+				  		<tr style="cursor: pointer;">
+				  			<td>{{ sale.date.strftime('%d/%m/%Y') }}</td>
+				  			<td>
+				  				{% if sale.brand %}
+				  					{{ sale.brand.name }}
+				  				{% elif sale.food %}
+				  					{{ sale.food.name }}
+				  				{% endif %}
+				  			</td>
+
+				  			<td>{{ sale.quantity }} ({{ sale.sale_unit }})</td>
+				  			<td>{{ sale.sale_price * sale.quantity }}</td>
+				  			<td>{{ sale.cashier.first_name }} {{ sale.cashier.last_name }}</td>
+				  			<td>{{ sale.waiter.first_name }} {{ sale.waiter.last_name }}</td>
+				  		</tr>
+				  	{% endfor %}
+				{% else %}
+					<tr align="center">
+						<td colspan="6">No Sales</td>
+					</tr>
+			  	{% endif %}
+			  </tbody>
+		</table>
+	</div>
+
+	<hr>
+
+	<div>
+		<div>
+			<h3 style="margin: 0;">Purchases from {{date.strftime('%Y-%m-%d')}}</h3>
+		</div>
+
+		<div>
+			<label>Total Purchases: </label><label>{{total_purchases}}</label>
+			<label>Fetched: </label><label>{{purchases|length}}</label>
+		</div>
+
+		<table>
+			<thead>
+			    <tr>
+			    	<th>Date</th>
+			    	<th>Item</th>
+			    	<th>Quantity</th>
+			    	<th>Unit Price</th>
+			    	<th>Total Price</th>
+			    </tr>
+			  </thead>
+
+			  <tbody>
+			  	{% if purchases|length %}
+				  	{% for purchase in purchases %}
+				  		<tr>
+				  			<td>{{ purchase.date.strftime('%d/%m/%Y') }}</td>
+				  			<td>{{ purchase.kitchen_stock.name }}</td>
+				  			<td>{{ purchase.quantity }} ({{ purchase.purchase_unit }})</td>
+				  			<td>{{ purchase.purchase_price }}</td>
+				  			<td>{{ purchase.purchase_price * purchase.quantity }}</td>
+				  		</tr>
+				  	{% endfor %}
+				{% else %}
+					<tr align="center">
+						<td colspan="6">No Purchases</td>
+					</tr>
+				{% endif %}
+			  </tbody>
+		</table>
+	</div>
+
+
+	<script>
+      anychart.onDocumentReady(function() {
+ 
+        // set the data
+        var data = {
+            header: ["Parameter", "Total"],
+            rows: [
+              ["Sales", {{total_sales}}],
+              ["Purchases", {{total_purchases}}],
+        ]};
+ 
+        // create the chart
+        var chart = anychart.bar();
+ 
+        // add the data
+        chart.data(data);
+ 
+        // set the chart title
+        chart.title("Sales and Purchases from {{date.strftime('%Y-%m-%d')}}");
+ 
+        // draw
+        chart.container("container");
+        chart.draw();
+      });
+    </script>
+
+</body>
+
+</html>

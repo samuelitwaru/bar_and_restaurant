@@ -1,0 +1,36 @@
+{% extends 'chef/chef-base.html' %}
+
+{% block content %}
+<h2>Chef</h2>
+<hr>
+<div class="container-fluid">	
+	<div class="row">
+
+		<div class="col-md-5 bg-light card ml-2">
+			
+			<form method="POST" action="{{ url_for('chef.change_password') }}">
+				<h3 class="form-check-label">Change Password</h3>
+				<hr>
+				<div class="form-group">
+					<label class="form-check-label">Current Password</label>
+					<input class="form-control" type="password" name="c-password" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Password</label>
+					<input class="form-control" type="password" name="n-password" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Confirm Password</label>
+					<input class="form-control" type="password" name="r-password" required>
+				</div>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-block">Reset</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

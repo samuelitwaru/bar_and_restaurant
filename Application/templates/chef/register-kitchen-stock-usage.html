@@ -1,0 +1,30 @@
+{% extends 'chef/chef-base.html' %}
+
+{% block content %}
+
+	<div class="container">
+        <div class="login-content card bg-light shadow p-2">
+			<form action="{{ url_for('kitchen_stock.register_usage') }}" method="POST">
+				<h3>Register Usage - {{ stock.name }}</h3>
+				<hr>
+				<div class="form-group">
+					<label>Quantity Available ({{ stock.usage_unit }})</label>
+					<label class="form-control bg-light">{{ stock.quantity_available }}</label>
+				</div>
+
+				<div class="form-group">
+					<input type="hidden" name="kitchen-stock" value="{{ stock.id }}">
+					<label>Quantity Used ({{ stock.usage_unit }})</label>
+					<input type="number" name="quantity" class="form-control" />
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<input type="submit" class="btn btn-success btn-block" value="Submit" />
+				</div>
+			</form>			
+		</div>
+	</div>
+
+{% endblock %}

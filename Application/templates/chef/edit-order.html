@@ -1,0 +1,67 @@
+{% extends 'chef/chef-base.html' %}
+
+{% block content %}
+<div class="container bg-white">
+	<h3 class="m-0 py-2">Order - {{order.order_ref}} <div class="float-right"><button class="btn btn-dark btn-md"><span class="fa fa-print"></span> Print</button></div></h3>
+	<hr>
+	<div class="row form-group pt-1">
+		<div class="col card p-2 shadow">
+			<h4 class="text-center">Items Ordered</h4>
+			<table class="table border">
+				<thead>
+				    <tr>
+				    	<th scope="col">Item</th>
+				    	<th scope="col">Quantity</th>
+				    	<th scope="col">Price</th>
+				    </tr>
+				 </thead>
+				 
+				 <tbody class="bg-light">
+				 	{% for sale in order.sales %}
+				 	<tr>
+				 		<td>
+				 			{% if sale.brand %}
+			  					{{ sale.brand.name }}
+			  				{% elif sale.food %}
+			  					{{ sale.food.name }}
+			  				{% endif %}
+				 		</td>
+				 		<td>{{ sale.quantity }} ({{ sale.sale_unit }})</td>
+				 		<td>{{ sale.sale_price * sale.quantity }}</td>
+				 	</tr>
+				 	{% endfor %}
+				 </tbody>
+
+				<tfoot>
+				 	<tr>
+					 	<td>Total Bill</td>
+					 	<td colspan="2" align="center"><strong><label>{{ order.bill }}</label></label></td>
+				 	</tr>
+
+				 	<tr>
+					 	<td>Amount Paid</td>
+					 	<td colspan="2" align="center">
+					 		<strong><label class="{% if order.paid < order.bill %} text-danger {% endif %}">{{ order.paid }}</label></strong>
+					 		{% if order.paid == order.bill %} <span class="fa fa-check text-success"></span> {% endif %}
+					 	</td>
+					</tr>
+
+					<tr>
+					 	<td>Customer</td>
+					 	<td colspan="2" align="center"><strong><label>{{ order.customer }}</label></strong></td>
+				 	</tr> 
+
+				 	<tr>
+					 	<td>Cashier</td>
+					 	<td colspan="2" align="center"><strong><label>{{ order.cashier.first_name }} {{ order.cashier.last_name }}</label></strong></td>
+				 	</tr> 
+				</tfoot>
+			</table>
+		</div>
+
+		<div class="col">
+			
+		</div>
+	</div>
+</div>
+{% endblock %}

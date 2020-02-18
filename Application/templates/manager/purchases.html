@@ -1,0 +1,153 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+<h2>Purchases</h2>
+<hr>
+<form class="bg-light card p-2" method="GET" action="{{ url_for('purchase.filter') }}">
+	<div class="row py-1">
+			<div class="col-md-2">
+				<small>Item</small>
+				<select class="form-control form-control-sm" name="item">
+					<option value="">All</option>
+					{% for item in kitchen_items %}
+						<option value="kitchen-{{item.id}}" {% if 'kitchen-'+item.id|string==item_id %} selected {% endif %} >{{ item.name }}</option>
+					{% endfor %}
+
+					{% for item in drink_items %}
+						<option value="drink-{{item.id}}" {% if 'drink-'+item.id|string==item_id %} selected {% endif %} >{{ item.name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+
+			<div class="col-md-2">
+				<small>Department</small>
+				<select class="form-control form-control-sm" name="place">
+					<option value="">All</option>
+					<option value="kitchen">Kitchen</option>
+					<option value="bar">Bar</option>
+				</select>
+			</div>
+
+			<div class="col-md-2">
+				<small>From</small>
+				<input type="date" name="from" {% if today %} value="{{today.strftime('%Y-%m-%d')}}" {% endif %} class="form-control form-control-sm" />
+			</div>
+
+			<div class="col-md-2">
+				<small>To</small>
+				<input type="date" name="to" {% if tomorrow %} value="{{tomorrow.strftime('%Y-%m-%d')}}" {% endif %} class="form-control form-control-sm" />
+			</div>
+
+			<div class="col-md-2" style="top: 30;">
+				<br>
+				<button type="submit" class="btn btn-block btn-sm btn-info">Filter</button>
+			</div>
+		
+	</div>
+</form>
+
+<div class="row py-1">
+	<div class="col-md-3">
+		<label>Fetched : </label> <strong>{{ kitchen_purchases | length + brand_purchases | length}} (purchases)</strong>
+	</div>
+
+	<div class="col-md-3">
+		<label>Total Purchases : </label> <strong>{{ total_purchases }}</strong>
+	</div>
+
+	<div class="col-md-3">
+		<button class="btn btn-dark" onclick="printDiv('purchases', false)"><span class="fa fa-print"></span> Print</button>
+	</div>
+</div>
+
+
+<div class="row">
+	<div class="col-md-12" id="purchases">
+		<div id="header-purchases"></div>
+		<table class="table table-responsive-sm table-hover border">
+			<thead>
+			    <tr>
+			    	<th scope="col">Date</th>
+			    	<th scope="col">Item</th>
+			    	<th scope="col">Quantity</th>
+			    	<th scope="col">Unit Price</th>
+			    	<th scope="col">Total Price</th>
+			    	<th scope="col"></th>
+			    </tr>
+			  </thead>
+
+			  <tbody>
+			  	{% for purchase in kitchen_purchases %}
+			  		<tr scope="row" style="cursor: pointer;">
+			  			<td>{{ purchase.date.strftime('%d/%m/%Y') }}</td>
+			  			<td>{{ purchase.kitchen_stock.name }} (Kitchen)</td>
+			  			<td>{{ purchase.purchase_quantity }} ({{ purchase.purchase_unit }})</td>
+			  			<td>{{ purchase.unit_price }}</td>
+			  			<td>{{ purchase.unit_price * purchase.purchase_quantity }}</td>
+			  			<td>
+			  				<button class="btn btn-danger btn-sm fa fa-trash" data-toggle="modal" data-target="#confirmDeleteKitchenPurchase{{purchase.id}}"> Delete</button>
+			  				<div class="modal fade" id="confirmDeleteKitchenPurchase{{purchase.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+								    <div class="modal-content">
+								      <div class="modal-header">
+								        <h5 class="modal-title" id="exampleModalLabel">Confirm Delete</h5>
+								        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								          <span aria-hidden="true">&times;</span>
+								        </button>
+								      </div>
+								      <div class="modal-body">
+								        Are you sure you want to delete this kitchen purchase? (id-{{purchase.id}})
+								      </div>
+								      <div class="modal-footer">
+								      	<form method="POST" action="{{ url_for('purchase.delete_kitchen_purchase') }}">
+								        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						  					<input type="hidden" name="kitchen-purchase-id" value="{{purchase.id}}">
+			  								<button type="submit" class="btn btn-danger"><span class="fa fa-trash"></span>  Delete</button>
+						  				</form>
+								      </div>
+								    </div>
+								</div>
+				  			</div>
+			  			</td>
+			  		</tr>
+			  	{% endfor %}
+
+			  	{% for purchase in brand_purchases %}
+			  		<tr scope="row" style="cursor: pointer;">
+			  			<td>{{ purchase.date.strftime('%d/%m/%Y') }}</td>
+			  			<td>{{ purchase.brand.name }} (Bar)</td>
+			  			<td>{{ purchase.quantity }} ({{ purchase.purchase_unit }})</td>
+			  			<td>{{ purchase.purchase_price }}</td>
+			  			<td>{{ purchase.purchase_price * purchase.quantity }}</td>
+			  			<td>
+			  				<button class="btn btn-danger btn-sm fa fa-trash" data-toggle="modal" data-target="#confirmDeleteBrandPurchase{{purchase.id}}"> Delete</button>
+			  				<div class="modal fade" id="confirmDeleteBrandPurchase{{purchase.id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+								<div class="modal-dialog" role="document">
+								    <div class="modal-content">
+								      <div class="modal-header">
+								        <h5 class="modal-title" id="exampleModalLabel">Confirm Delete</h5>
+								        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								          <span aria-hidden="true">&times;</span>
+								        </button>
+								      </div>
+								      <div class="modal-body">
+								        Are you sure you want to delete this brand purchase? (id-{{purchase.id}})
+								      </div>
+								      <div class="modal-footer">
+								      	<form method="POST" action="{{ url_for('purchase.delete_purchase') }}">
+								        	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						  					<input type="hidden" name="purchase-id" value="{{purchase.id}}">
+			  								<button type="submit" class="btn btn-danger"><span class="fa fa-trash"></span>  Delete</button>
+						  				</form>
+								      </div>
+								    </div>
+								</div>
+				  			</div>
+			  			</td>
+			  		</tr>
+			  	{% endfor %}
+			  </tbody>
+		</table>
+	</div>
+</div>
+{% endblock %}

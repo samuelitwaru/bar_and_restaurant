@@ -1,0 +1,74 @@
+{% extends 'manager/manager-base.html' %}
+
+{% block content %}
+<h2>Manager</h2>
+<hr>
+<div class="container-fluid">	
+	<div class="row">
+		<div class="col-md-5 bg-light card">
+			<form method="POST" action="{{url_for('manager.edit_manager')}}">
+				<h3>Manager Detials</h3>
+				<hr>
+				<div class="form-group">
+					<label class="form-check-label">First Name</label>
+					<input class="form-control" type="text" name="first-name" value="{{current_user.manager.first_name}}" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Last Name</label>
+					<input class="form-control" type="text" name="last-name" value="{{current_user.manager.last_name}}" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Email</label>
+					<input class="form-control" type="email" name="email" value="{{current_user.manager.email}}" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<label class="form-check-label">Username</label>
+					<input class="form-control" type="text" name="username" placeholder="Username" value="{{current_user.manager.user.username}}" required>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+					<label class="form-check-label">Boss' Email</label>
+					<input class="form-control" type="email" name="boss-email" value="{{current_user.manager.boss_email}}" required>
+				</div>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-block">Update</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="col-md-5 bg-light card ml-2">
+			
+			<form method="POST" action="{{url_for('manager.change_password')}}">
+				<h3 class="form-check-label">Change Password</h3>
+				<hr>
+				<div class="form-group">
+					<label class="form-check-label">Current Password</label>
+					<input class="form-control" type="password" name="c-password" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Password</label>
+					<input class="form-control" type="password" name="n-password" required>
+				</div>
+
+				<div class="form-group">
+					<label class="form-check-label">Confirm Password</label>
+					<input class="form-control" type="password" name="r-password" required>
+				</div>
+
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary btn-block">Reset</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
